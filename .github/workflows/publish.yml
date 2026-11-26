@@ -1,34 +1,39 @@
 name: Publish Package to GitHub Packages
 
 on:
-  push:
-    branches:
-      - main
+    push:
+        branches:
+            - main
 
 permissions:
-  contents: read
-  packages: write
+    contents: read
+    packages: write
 
 jobs:
-  publish:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    publish:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
+            - uses: pnpm/action-setup@v4
+              with:
+                  version: 10
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@tomasmendoza-unq'
-          cache: 'pnpm'
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  registry-url: "https://npm.pkg.github.com"
+                  scope: "@tomasmendoza-unq"
 
-      - run: pnpm install --frozen-lockfile || pnpm install
-      - run: pnpm typecheck
-      - run: pnpm build
-      - run: pnpm publish --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Install dependencies
+              run: pnpm install --no-frozen-lockfile
+
+            - name: Typecheck & Build
+              run: |
+                  pnpm typecheck
+                  pnpm build
+
+            - name: Publish to GitHub Packages
+              run: pnpm publish --no-git-checks
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
